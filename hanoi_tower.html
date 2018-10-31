@@ -1,0 +1,241 @@
+<canvas id="gc" width="1200" height="800"></canvas>
+<script>
+window.onload=function() {
+    canv=document.getElementById("gc");
+    ctx=canv.getContext("2d");
+    canv.addEventListener('click',onClick,false);
+    setInterval(game,1000/60);
+}
+gs=10;
+w=1200;
+h=800
+tcx=w/gs;
+tcy=h/gs;
+t1=[];
+t2=[];
+t3=[];
+flag = "";
+for (var i = 0; i < 3; i++) {
+    t1.push(i+1);
+}
+thick=1; //espessura da borda;
+confirm=false;
+freeDisc=[];
+stage=1;
+function game() {
+    ctx.font="20px Georgia";
+    ctx.fillStyle="grey";
+    ctx.fillRect(0,0,canv.width,canv.height);
+
+    ctx.fillStyle="black";
+    ctx.fillRect(0,0.9*canv.height,canv.width,0.1*canv.height);
+
+    ctx.fillText(t1,10,20);
+    ctx.fillText(t2,10,40);
+    ctx.fillText(t3,10,60);
+
+    ctx.fillRect(19*gs,0.1*canv.height,2*gs,0.8*canv.height);
+    ctx.fillRect(59*gs,0.1*canv.height,2*gs,0.8*canv.height);
+    ctx.fillRect(99*gs,0.1*canv.height,2*gs,0.8*canv.height);
+
+    ctx.fillStyle="white";
+    ctx.fillText("Tower 1",165,0.925*h);
+    ctx.fillText("Tower 2",565,0.925*h);
+    ctx.fillText("Tower 1",965,0.925*h);
+
+    ctx.strokeStyle="white";
+    ctx.font="30px serif";
+    for(var i=1; i<17; i++){
+        ctx.strokeRect((7+6*i)*gs,h-5*gs,4*gs,4*gs);
+        ctx.fillText(i+2,((i<8)?(8.3+6*i):(7.4+6*i))*gs,h-2*gs)
+    }
+
+    for(var i = t1.length; i>=0; i--){
+        printDisc(t1[i],i,t1.length,1)
+    }
+    for(var i = t2.length; i>=0; i--){
+        printDisc(t2[i],i,t2.length,2)
+    }
+    for(var i = t3.length; i>=0; i--){
+        printDisc(t3[i],i,t3.length,3)
+    }
+    switch(flag){
+        case "t1":
+            printDisc(freeDisc[0],-2,t1.length,1)
+            break;
+        case "t2":
+            printDisc(freeDisc[0],-2,t2.length,2)
+            break;
+        case "t3":
+            printDisc(freeDisc[0],-2,t3.length,3)
+            break;
+    }
+}
+(function(e){
+    var shouldHandleKeyDown = true;
+    document.onkeydown = function(e){
+        if (!shouldHandleKeyDown) return;
+        shouldHandleKeyDown = false;
+        switch(e.keyCode) {
+            case 49:
+            case 37:
+                if(stage==1 && freeDisc.length==0 && t1.length>0){
+                    flag="t1";
+                    freeDisc.unshift(t1.shift());
+                    stage=(stage==1)?2:1;
+                }
+                else{
+                    if(stage==2 && (t1[0]==undefined || freeDisc[0]<t1[0])){
+                        flag="";
+                        t1.unshift(freeDisc.shift());
+                        stage=(stage==1)?2:1;
+                    }
+                }
+                break;
+            case 50:
+            case 38:
+            case 40:
+                if(stage==1 && freeDisc.length==0 && t2.length>0){
+                    flag="t2";
+                    freeDisc.unshift(t2.shift());
+                    stage=(stage==1)?2:1;
+                }
+                else{
+                    if(stage==2 && (t2[0]==undefined || freeDisc[0]<t2[0])){
+                        flag="";
+                        t2.unshift(freeDisc.shift());
+                        stage=(stage==1)?2:1;
+                    }
+                }
+                break;
+            case 51:
+            case 39:
+                if(stage==1 && freeDisc.length==0 && t3.length>0){
+                    flag="t3";
+                    freeDisc.unshift(t3.shift());
+                    stage=(stage==1)?2:1;
+                }
+                else{
+                    if(stage==2 && (t3[0]==undefined || freeDisc[0]<t3[0])){
+                        flag="";
+                        t3.unshift(freeDisc.shift());
+                        stage=(stage==1)?2:1;
+                    }
+                }
+                break;
+        }
+    }
+    document.onkeyup = function(){
+        shouldHandleKeyDown = true;
+    }
+})();
+function onClick(e){
+    var x = e.clientX - canv.offsetLeft;
+    var y = e.clientY - canv.offsetTop;
+    for(var i=1; i<17; i++){
+        if(x>(7+6*i)*gs && x<(11+6*i)*gs && y>h-5*gs && y<h-gs){
+            t1=[];
+            t2=[];
+            t3=[];
+            for(var j=0; j<i+2; j++){
+                t1.push(j+1);
+            }
+        }
+    }
+}
+function printDisc(v,i,l,t){
+    ctx.fillStyle="black";
+    switch(v){
+        case 1:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#FF0000";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 2:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#00FF00";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 3:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#0000FF";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 4:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#FFFF00";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 5:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#FF00FF";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 6:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#00FFFF";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 7:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#80A000";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 8:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#8000A0";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 9:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#0080A0";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 10:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#A08000";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 11:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#A00080";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 12:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#00A080";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 13:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#FFA080";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 14:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#FF80A0";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 15:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#A0FF80";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 16:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#A080FF";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 17:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#80FFA0";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+        case 18:
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs,0.9*canv.height-3*gs*(l-i),2*(v+1)*gs,3*gs);
+            ctx.fillStyle="#80A0FF";
+            ctx.fillRect(((2*t-1)*tcx/6-(v+1))*gs+thick,0.9*canv.height-3*gs*(l-i)+thick,2*(v+1)*gs-2*thick,3*gs-2*thick);
+            break;
+    }
+}
+</script>
